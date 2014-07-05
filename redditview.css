@@ -1,0 +1,11 @@
+.red-thumb {
+  border: 1px solid rgba(56, 134, 72, .5);
+}
+.red-item-wrap {
+  float: left;
+  width: 145px;
+  height: 145px;
+  padding: 2px;
+  margin: 2px;
+  border: 1px solid rgba(56, 134, 72, .5);
+}

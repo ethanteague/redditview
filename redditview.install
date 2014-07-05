@@ -1,0 +1,55 @@
+<?php
+
+/**
+ * @file
+ * Additional functions for the redditview module
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function redditview_schema() {
+  $schema = array();
+  $schema['redditview_user_info'] = array(
+    'description' => 'First table',
+    'fields' => array(
+      'id' => array(
+        'description' => 'My unique identifier',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'user' => array(
+        'description' => 'list',
+        'type' => 'varchar',
+        'length' => 64,
+        'default' => 0,
+        'not null' => TRUE,
+      ),
+      'pass' => array(
+        'description' => 'list',
+        'type' => 'varchar',
+        'length' => 64,
+        'default' => 0,
+        'not null' => TRUE,
+      ),
+      'section' => array(
+        'description' => 'list',
+        'type' => 'varchar',
+        'length' => 64,
+        'default' => 0,
+        'not null' => TRUE,
+      ),
+      'posts' => array(
+        'description' => 'list',
+        'type' => 'varchar',
+        'length' => 64,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}

@@ -1,0 +1,6 @@
+name = Redditview
+description = "Uses the reddit api to pull in posts"
+core = 7.x
+package = "Reddit"
+dependencies[] = libraries
+configure = admin/config/redditview/form-fill 

@@ -1,0 +1,165 @@
+<?php
+
+/**
+ * @file
+ * Additional functions for the redditview module
+ */
+
+/**
+ * Needed for additional functions.
+ */
+include_once 'redditview.inc';
+
+/**
+ * Implements hook_block_info().
+ */
+function redditview_block_info() {
+  $blocks['redditview_content'] = array(
+    'info' => t('Redditview content block'),
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function redditview_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'redditview_content':
+      $block['subject'] = '';
+      $block['content'] = redditview_block_items();
+      break;
+  }
+  return $block;
+}
+
+/**
+ * Controls main block tpl content.
+ */
+function redditview_block_items() {
+  $items = array();
+  $items['subject'] = t('Redditview');
+  $items['content'] = redditview_object();
+  return theme('redditview_block_items', array('items' => $items));
+}
+
+/**
+ * Implements hook_theme().
+ */
+function redditview_theme() {
+  $module_path = drupal_get_path('module', 'redditview');
+  $base = array(
+    'path' => $module_path,
+  );
+  return array(
+    'redditview_block_items' => $base + array(
+      'template' => 'redditview_content',
+      'variables' => array('items' => NULL),
+    ),
+  );
+}
+
+
+/**
+ * Implements hook_menu().
+ */
+function redditview_menu() {
+  $items = array();
+  $items['admin/config/redditview/form-fill'] = array(
+    'title' => 'Redditview Form',
+    'description' => 'A form to build the Redditview block.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('redditview_form'),
+    'access callback' => 'user_is_logged_in',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_form().
+ */
+function redditview_form($form, &$form_state) {
+
+  $form['redditview_user'] = array(
+    '#type' => 'textfield',
+    '#size' => 30,
+    '#maxlength' => 64,
+    '#title' => t('Redditview User Name'),
+    '#required' => TRUE,
+  );
+
+  $form['forum_pass'] = array(
+    '#type' => 'textfield',
+    '#size' => 30,
+    '#maxlength' => 64,
+    '#title' => t('Redditview password'),
+    '#required' => TRUE,
+  );
+
+  $form['redditview_section'] = array(
+    '#type' => 'textfield',
+    '#size' => 30,
+    '#maxlength' => 64,
+    '#title' => t('Redditview section'),
+    '#required' => TRUE,
+  );
+
+  $form['num_of_posts'] = array(
+    '#type' => 'textfield',
+    '#size' => 5,
+    '#maxlength' => 2,
+    '#title' => t('Posts to return'),
+    '#required' => TRUE,
+  );
+
+  $form['submit_button'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+
+  $form['#submit'][] = 'redditview_form_submit';
+  return $form;
+}
+
+/**
+ * Implements hook_form_submit().
+ */
+function redditview_form_submit($form, &$form_state) {
+  $values = array(
+    'redditview_user' => $form_state['values']['redditview_user'],
+    'forum_pass' => $form_state['values']['forum_pass'],
+    'redditview_section' => $form_state['values']['redditview_section'],
+    'num_of_posts' => $form_state['values']['num_of_posts'],
+  );
+
+  $encrypted = md5($values['forum_pass']);
+
+  $result = db_select('redditview_user_info', 'user')
+    ->fields('user')
+    ->execute()
+    ->fetchAssoc();
+
+  if (empty($result)) {
+    $insert = db_insert('redditview_user_info')
+      ->fields(array(
+        'user' => $values['redditview_user'],
+        'pass' => $encrypted,
+        'section' => $values['redditview_section'],
+        'posts' => $values['num_of_posts'],
+      ))
+      ->execute();
+  }
+  else {
+    $insert = db_update('redditview_user_info')
+      ->fields(array(
+        'user' => $values['redditview_user'],
+        'pass' => $encrypted,
+        'section' => $values['redditview_section'],
+        'posts' => $values['num_of_posts'],
+      ))
+      ->execute();
+  }
+
+  drupal_set_message(t('Settings have been saved'));
+}
